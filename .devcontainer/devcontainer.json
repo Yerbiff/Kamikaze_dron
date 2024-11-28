@@ -12,7 +12,7 @@
     "workspaceMount": "source=${localWorkspaceFolder},target=/work/tello_ros_ws/src,type=bind",
     "customizations": {
         "vscode": {
-            "extensions":[
+            "extensions": [
                 "ms-vscode.cpptools",
                 "ms-vscode.cpptools-themes",
                 "twxs.cmake",
@@ -29,10 +29,11 @@
     },
     "runArgs": [
         "--net=host",
-        "-e", "DISPLAY=${env:DISPLAY}"
+        "-e",
+        "DISPLAY=${env:DISPLAY}"
     ],
     "mounts": [
-       "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
+        "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
         "source=/dev/dri,target=/dev/dri,type=bind,consistency=cached"
     ],
     "postCreateCommand": "sudo rosdep update && sudo rosdep install --from-paths src --ignore-src -y && sudo chown -R $(whoami) /work/tello_ros_ws/"
