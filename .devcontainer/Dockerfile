@@ -1,25 +1,29 @@
-FROM ros:humble
-ARG USERNAME=YERBIFF
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+# To build:
+# docker build --pull --no-cache --tag tello_ros:foxy .
 
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && apt-get update \
-    && apt-get install -y sudo \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
-RUN apt-get update && apt-get upgrade -y
-RUN apt-get install ros-humble-navigation2 -y
-RUN apt-get install ros-humble-nav2-bringup -y
-RUN apt-get install ros-humble-turtlebot3-gazebo -y
-# RUN apt-get install rviz2 - y
+# To run:
+# docker run -it tello_ros:foxy bash
+
+# I'm using this for smoke tests
+# To run tello_ros in a docker container you will need to set up ports, x-windows, etc.
+
+FROM osrf/ros:foxy-desktop
+
+RUN apt-get update
+RUN apt-get upgrade -y
+
+RUN apt-get install -y libasio-dev
 RUN apt-get install -y python3-pip
+RUN yes | pip3 install 'transformations==2018.9.5'
 
-ENV SHELL /bin/bash
+WORKDIR /work/tello_ros_ws/src
 
-RUN apt-get autoremove -y
-RUN apt-get clean -y
+RUN git clone https://github.com/clydemcqueen/tello_ros.git
+RUN git clone https://github.com/ptrmu/ros2_shared.git
+RUN git clone https://github.com/ptrmu/fiducial_vlam.git
 
-USER $USERNAME
-CMD ["/bin/bash"]
+WORKDIR /work/tello_ros_ws
+
+RUN rosdep install -y --from-paths . --ignore-src
+
+RUN /bin/bash -c "source /opt/ros/foxy/setup.bash && colcon build"
